@@ -26,6 +26,17 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
 
+        <activity android:name=".activity.DeviceSettingActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity android:name=".activity.LoraSettingsActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity android:name=".activity.AdvancedSettingActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activity.DeviceLogActivity"
+            android:screenOrientation="portrait"/>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.moko.lw009.fileprovider"

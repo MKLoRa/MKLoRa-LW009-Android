@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -24,6 +25,19 @@ import javax.crypto.spec.SecretKeySpec;
 import androidx.core.content.FileProvider;
 
 public class Utils {
+
+    public static String toDayHoursMinSec(int time) {
+        long day = TimeUnit.SECONDS.toDays(time);
+        long hours = TimeUnit.SECONDS.toHours(time) - TimeUnit.DAYS.toHours(TimeUnit.SECONDS.toDays(time));
+        long minutes = TimeUnit.SECONDS.toMinutes(time) - TimeUnit.HOURS.toMinutes(TimeUnit.SECONDS.toHours(time));
+        long seconds = TimeUnit.SECONDS.toSeconds(time) - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(time));
+        StringBuilder builder = new StringBuilder();
+        if (day >0)builder.append(day).append("days");
+        if (hours >0) builder.append(hours).append("hours");
+        if (minutes >0) builder.append(minutes).append("mins");
+        builder.append(seconds).append("s");
+        return builder.toString();
+    }
 
     public static void sendEmail(Context context, String address, String body, String subject, String tips, File... files) {
         if (files.length == 0) {

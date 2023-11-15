@@ -404,7 +404,7 @@ public class Lw009MainActivity extends Lw009BaseActivity implements MokoScanDevi
                     MokoSupport.getInstance().disConnectBle();
                 } else {
                     //密码校验成功了
-
+                    startActivity(new Intent(Lw009MainActivity.this, DeviceSettingActivity.class));
                 }
             }
 

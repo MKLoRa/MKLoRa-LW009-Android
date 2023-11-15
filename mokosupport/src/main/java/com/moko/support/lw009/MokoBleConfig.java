@@ -25,6 +25,7 @@ final class MokoBleConfig extends MokoBleManager {
     public MokoBleConfig(@NonNull Context context, MokoResponseCallback callback) {
         super(context);
         mMokoResponseCallback = callback;
+
     }
 
     @Override
