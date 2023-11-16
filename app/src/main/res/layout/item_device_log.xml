@@ -1,14 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:textSize="15sp"
-    android:textColor="@color/black_333333"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
     android:paddingTop="8dp"
-    android:paddingBottom="8dp"
-    tools:text="2023-12-23 15:12:12    停车"
-    android:id="@+id/tvContent"
-    android:layout_height="wrap_content">
+    android:gravity="center_vertical"
+    android:paddingBottom="8dp">
 
+    <TextView
+        android:id="@+id/tvTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingRight="20dp"
+        android:textColor="@color/black_333333"
+        android:textSize="15sp"
+        tools:text="2023-12-23 15:12:12" />
 
-</TextView>
+    <TextView
+        android:id="@+id/tvContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black_333333"
+        android:textSize="15sp"
+        android:lineSpacingMultiplier="1.1"
+        tools:text="dfjkdljldjflkdjlfkjldjffdjkfjldjflkadjfkljdaklffkdjflkjdaklfjdlkjflkdjflkja" />
+</LinearLayout>

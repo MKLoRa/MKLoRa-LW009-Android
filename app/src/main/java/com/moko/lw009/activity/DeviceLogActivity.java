@@ -3,9 +3,6 @@ package com.moko.lw009.activity;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.recyclerview.widget.LinearLayoutManager;
-
-import com.elvishew.xlog.XLog;
 import com.moko.ble.lib.MokoConstants;
 import com.moko.ble.lib.event.ConnectStatusEvent;
 import com.moko.ble.lib.event.OrderTaskResponseEvent;
@@ -13,6 +10,7 @@ import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.ble.lib.utils.MokoUtils;
 import com.moko.lw009.adapter.DeviceLogAdapter;
 import com.moko.lw009.databinding.ActivityDeviceLogBinding;
+import com.moko.lw009.entity.DeviceLogBean;
 import com.moko.lw009.utils.ToastUtils;
 import com.moko.support.lw009.MokoSupport;
 import com.moko.support.lw009.OrderTaskAssembler;
@@ -41,11 +39,11 @@ public class DeviceLogActivity extends Lw009BaseActivity {
     private ActivityDeviceLogBinding mBind;
     private DeviceLogAdapter adapter;
     private int currentPackage;
-    private final List<String> dataList = new LinkedList<>();
-    private final Map<String, String> map = new HashMap<>(32);
+    private final List<DeviceLogBean> dataList = new LinkedList<>();
+    private final Map<String, String> map = new HashMap<>(64);
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
     private boolean hasMore;
-    private final String defaultLog = "蓝牙修改参数......";
+    private final String defaultLog = "Bluetooth modification parameters";
     private boolean hasSaved;
 
     @Override
@@ -57,36 +55,36 @@ public class DeviceLogActivity extends Lw009BaseActivity {
         adapter = new DeviceLogAdapter();
         adapter.replaceData(dataList);
         mBind.rvList.setAdapter(adapter);
-        map.put("01", "有车");
-        map.put("02", "无车");
-        map.put("03", "强磁");
-        map.put("04", "低电压报警");
-        map.put("05", "磁传感器检测失效（可读IC信息）");
-        map.put("06", "磁传感器硬件损坏(不可读IC信息)");
-        map.put("07", "服务平台修改心跳");
-        map.put("08", "服务平台同步时间");
-        map.put("09", "服务平台修改灵敏度");
-        map.put("0a", "服务平台无车校准");
-        map.put("0b", "服务平台复位设备");
-        map.put("0c", "LORA WAN注册失败，发送数据失败");
-        map.put("0d", "LORA WAN下行MAC命令");
-        map.put("0e", "IWDG复位");
-        map.put("0f", "外部硬看门狗复位");
-        map.put("10", "6次心跳网关失联复位");
-        map.put("11", "修改服务平台IP地址");
-        map.put("12", "修改服务平台端口号");
-        map.put("13", "修改IOT平台");
-        map.put("14", "修改ACK");
-        map.put("15", "数据发送失败");
-        map.put("16", "NB模块重启");
-        map.put("31", "手动触发状态包发送");
-        map.put("32", "手动触发参数包发送");
-        map.put("33", "设备命令复位");
-        map.put("80", "蓝牙有车校准");
-        map.put("81", "蓝牙无车校准");
-        map.put("82", "蓝牙修改工作模式");
-        map.put("83", "蓝牙修改本地时间");
-        map.put("f1", "固件升级");
+        map.put("01", "Have a car");
+        map.put("02", "No car");
+        map.put("03", "Strong magnet");
+        map.put("04", "Low voltage alarm");
+        map.put("05", "Magnetic sensor detection failure (readable IC information)");
+        map.put("06", "Magnetic sensor hardware is damaged (IC information cannot be read)");
+        map.put("07", "Service platform modifies heartbeat");
+        map.put("08", "Service platform synchronization time");
+        map.put("09", "Service platform modification sensitivity");
+        map.put("0a", "Service platform car-free calibration");
+        map.put("0b", "Service platform reset equipment");
+        map.put("0c", "LORA WAN registration failed and data sending failed");
+        map.put("0d", "LORA WAN downlink MAC command");
+        map.put("0e", "IWDG reset");
+        map.put("0f", "External hard watchdog reset");
+        map.put("10", "6 Heartbeat Gateway Lost Connection Reset");
+        map.put("11", "Modify the service platform IP address");
+        map.put("12", "Modify the service platform port number");
+        map.put("13", "Modify IOT platform");
+        map.put("14", "Modify ACK");
+        map.put("15", "Data sending failed");
+        map.put("16", "NB module restart");
+        map.put("31", "Manually trigger status packet sending");
+        map.put("32", "Manually trigger parameter packet sending");
+        map.put("33", "Device command reset");
+        map.put("80", "Bluetooth car calibration");
+        map.put("81", "Bluetooth car-free calibration");
+        map.put("82", "Bluetooth modification working mode");
+        map.put("83", "Bluetooth changes local time");
+        map.put("f1", "Firmware upgrade");
     }
 
     @Subscribe(threadMode = ThreadMode.POSTING, priority = 400)
@@ -138,17 +136,16 @@ public class DeviceLogActivity extends Lw009BaseActivity {
                                 currentPackage = value[3] & 0xff;
                                 byte[] data = Arrays.copyOfRange(value, 4, 3 + length);
                                 int logLength = data.length / 12;
-                                XLog.i("333333log=" + MokoUtils.bytesToHexString(data));
                                 for (int i = 0; i < logLength; i++) {
                                     if (data[i * 12] == 1) {
                                         //有记录数据
                                         hasMore = true;
+                                        DeviceLogBean bean = new DeviceLogBean();
                                         String type = MokoUtils.byte2HexString(data[i * 12 + 1]);
-                                        String content = null == map.get(type) ? defaultLog : map.get(type);
+                                        bean.content = null == map.get(type) ? defaultLog : map.get(type);
                                         long timeTemp = MokoUtils.toInt(Arrays.copyOfRange(data, i * 12 + 2, i * 12 + 6));
-                                        String time = sdf.format(new Date(timeTemp * 1000));
-                                        XLog.i("333333time=" + content + time);
-                                        dataList.add(0, time + "      " + content);
+                                        bean.time = sdf.format(new Date(timeTemp * 1000));
+                                        dataList.add(0, bean);
                                     } else {
                                         hasMore = false;
                                     }
@@ -171,7 +168,7 @@ public class DeviceLogActivity extends Lw009BaseActivity {
     }
 
     public void onSave(View view) {
-        if (isWindowLocked()) return;
+        if (isWindowLocked() || hasSaved) return;
         showSyncingProgressDialog();
         MokoSupport.getInstance().sendOrder(OrderTaskAssembler.setLogSwitch(mBind.cbSwitch.isChecked() ? 1 : 0));
     }
