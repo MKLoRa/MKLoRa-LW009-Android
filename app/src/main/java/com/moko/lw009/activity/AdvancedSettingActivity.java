@@ -2,6 +2,8 @@ package com.moko.lw009.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -31,20 +33,30 @@ import java.util.Arrays;
  */
 public class AdvancedSettingActivity extends Lw009BaseActivity {
     private ActivityAdvancedSettingBinding mBind;
+    private Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBind = ActivityAdvancedSettingBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
+        handler = new Handler(Looper.getMainLooper());
         EventBus.getDefault().register(this);
         showSyncingProgressDialog();
+        timeout();
         MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getStopDetectionCycle());
         mBind.tvSync.setOnClickListener(v -> {
             showSyncingProgressDialog();
             MokoSupport.getInstance().sendOrder(OrderTaskAssembler.syncLocalTime());
         });
         mBind.tvLog.setOnClickListener(v -> startActivity(new Intent(this, DeviceLogActivity.class)));
+    }
+
+    private void timeout() {
+        handler.postDelayed(() -> {
+            dismissSyncProgressDialog();
+            ToastUtils.showToast(this, "time out");
+        }, 3000);
     }
 
     @Subscribe(threadMode = ThreadMode.POSTING, priority = 300)
@@ -74,7 +86,9 @@ public class AdvancedSettingActivity extends Lw009BaseActivity {
                     if (header != 0xA2 || null == keyEnum) return;
                     switch (keyEnum) {
                         case KEY_READ_STOP_DETECTION:
+                            handler.removeMessages(0);
                             MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getStopDetectionDuration());
+                            timeout();
                             if (length == 1) {
                                 int stop = value[3] & 0xff;
                                 mBind.etStopDetection.setText(String.valueOf(stop));
@@ -82,7 +96,9 @@ public class AdvancedSettingActivity extends Lw009BaseActivity {
                             }
                             break;
                         case KEY_READ_DETECTION_DURATION:
+                            handler.removeMessages(0);
                             MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getSelfCalibrationSwitch());
+                            timeout();
                             if (length == 1) {
                                 int duration = value[3] & 0xff;
                                 mBind.etDetectionDuration.setText(String.valueOf(duration));
@@ -91,7 +107,9 @@ public class AdvancedSettingActivity extends Lw009BaseActivity {
                             break;
 
                         case KEY_READ_SELF_CALIBRATION:
+                            handler.removeMessages(0);
                             MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getSelfCalibrationTrigger());
+                            timeout();
                             if (length == 1) {
                                 int enable = value[3] & 0xff;
                                 mBind.cbSwitch.setChecked(enable == 1);
@@ -99,7 +117,9 @@ public class AdvancedSettingActivity extends Lw009BaseActivity {
                             break;
 
                         case KEY_READ_SELF_CALIBRATION_TRIGGER:
+                            handler.removeMessages(0);
                             MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getSelfCalibrationDelay());
+                            timeout();
                             if (length == 2) {
                                 int trigger = MokoUtils.toInt(Arrays.copyOfRange(value, 3, 5));
                                 mBind.etTrigger.setText(String.valueOf(trigger));
@@ -108,7 +128,9 @@ public class AdvancedSettingActivity extends Lw009BaseActivity {
                             break;
 
                         case KEY_READ_SELF_CALIBRATION_DELAY:
+                            handler.removeMessages(0);
                             MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getPackingTimes());
+                            timeout();
                             if (length == 1) {
                                 int delay = value[3] & 0xff;
                                 mBind.etDelay.setText(String.valueOf(delay));
@@ -117,7 +139,9 @@ public class AdvancedSettingActivity extends Lw009BaseActivity {
                             break;
 
                         case KEY_READ_PACKING_TIMES:
+                            handler.removeMessages(0);
                             MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getTotalWorkingTime());
+                            timeout();
                             if (length == 4) {
                                 int times = MokoUtils.toInt(Arrays.copyOfRange(value, 3, 7));
                                 mBind.tvDetectionTimes.setText(String.valueOf(times));
@@ -125,7 +149,9 @@ public class AdvancedSettingActivity extends Lw009BaseActivity {
                             break;
 
                         case KEY_READ_DEVICE_WORKING_TIME:
+                            handler.removeMessages(0);
                             MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getSnNumber());
+                            timeout();
                             if (length == 4) {
                                 int time = MokoUtils.toInt(Arrays.copyOfRange(value, 3, 7));
                                 String timeStr = Utils.toDayHoursMinSec(time);
@@ -134,6 +160,7 @@ public class AdvancedSettingActivity extends Lw009BaseActivity {
                             break;
 
                         case KEY_READ_SN_NUMBER:
+                            handler.removeMessages(0);
                             dismissSyncProgressDialog();
                             if (length == 8) {
                                 String sn = new String(Arrays.copyOfRange(value, 3, 11));
@@ -142,9 +169,11 @@ public class AdvancedSettingActivity extends Lw009BaseActivity {
                             break;
 
                         case KEY_SET_STOP_DETECTION:
+                            handler.removeMessages(0);
                             if (length == 1) {
                                 int result = value[3] & 0xff;
                                 if (result == 0) {
+                                    timeout();
                                     MokoSupport.getInstance().sendOrder(OrderTaskAssembler.setStopDetectionDuration(duration));
                                 } else {
                                     dismissSyncProgressDialog();
@@ -154,9 +183,11 @@ public class AdvancedSettingActivity extends Lw009BaseActivity {
                             break;
 
                         case KEY_SET_DETECTION_DURATION:
+                            handler.removeMessages(0);
                             if (length == 1) {
                                 int result = value[3] & 0xff;
                                 if (result == 0) {
+                                    timeout();
                                     MokoSupport.getInstance().sendOrder(OrderTaskAssembler.setSelfCalibrationSwitch(mBind.cbSwitch.isChecked() ? 1 : 0));
                                 } else {
                                     dismissSyncProgressDialog();
@@ -166,9 +197,11 @@ public class AdvancedSettingActivity extends Lw009BaseActivity {
                             break;
 
                         case KEY_SET_SELF_CALIBRATION:
+                            handler.removeMessages(0);
                             if (length == 1) {
                                 int result = value[3] & 0xff;
                                 if (result == 0) {
+                                    timeout();
                                     MokoSupport.getInstance().sendOrder(OrderTaskAssembler.setSelfCalibrationTrigger(trigger));
                                 } else {
                                     dismissSyncProgressDialog();
@@ -178,9 +211,11 @@ public class AdvancedSettingActivity extends Lw009BaseActivity {
                             break;
 
                         case KEY_SET_SELF_CALIBRATION_TRIGGER:
+                            handler.removeMessages(0);
                             if (length == 1) {
                                 int result = value[3] & 0xff;
                                 if (result == 0) {
+                                    timeout();
                                     MokoSupport.getInstance().sendOrder(OrderTaskAssembler.setSelfCalibrationDelay(delay));
                                 } else {
                                     dismissSyncProgressDialog();
@@ -192,6 +227,7 @@ public class AdvancedSettingActivity extends Lw009BaseActivity {
                         case KEY_SET_SELF_CALIBRATION_DELAY:
                         case KEY_SET_LOCAL_TIME:
                             dismissSyncProgressDialog();
+                            handler.removeMessages(0);
                             if (length == 1) {
                                 int result = value[3] & 0xff;
                                 ToastUtils.showToast(this, result == 0 ? "set up success" : "set up failed");
@@ -207,6 +243,7 @@ public class AdvancedSettingActivity extends Lw009BaseActivity {
         if (isWindowLocked()) return;
         if (isValid()) {
             showSyncingProgressDialog();
+            timeout();
             MokoSupport.getInstance().sendOrder(OrderTaskAssembler.setStopDetectionCycle(cycle));
         } else {
             ToastUtils.showToast(this, "Para error!");
@@ -227,7 +264,7 @@ public class AdvancedSettingActivity extends Lw009BaseActivity {
         if (duration < 1 || duration > 60) return false;
         if (TextUtils.isEmpty(mBind.etTrigger.getText())) return false;
         trigger = Integer.parseInt(mBind.etTrigger.getText().toString());
-        if (trigger < 60 || trigger < 6000) return false;
+        if (trigger < 60 || trigger > 6000) return false;
         if (TextUtils.isEmpty(mBind.etDelay.getText())) return false;
         delay = Integer.parseInt(mBind.etDelay.getText().toString());
         return (delay >= 30 && delay <= 240);

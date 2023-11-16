@@ -268,9 +268,15 @@ public class OrderTaskAssembler {
         return task;
     }
 
-    public static OrderTask readLastLog(){
+    public static OrderTask readLastLog(int dataPackage){
         ParamsWriteTask task = new ParamsWriteTask();
-        task.readLastLog();
+        task.readLastLog(dataPackage);
+        return task;
+    }
+
+    public static OrderTask reset(){
+        ParamsWriteTask task = new ParamsWriteTask();
+        task.getData(ParamsKeyEnum.KEY_RESET.getParamsKey());
         return task;
     }
 }

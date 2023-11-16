@@ -66,7 +66,7 @@ public class ParamsWriteTask extends OrderTask {
     }
 
     public void replyUnlockState(@IntRange(from = 0, to = 1) int result) {
-        byte[] crcBytes = checkCrc(MokoUtils.toByteArray(result, 1));
+        byte[] crcBytes = checkCrc(MokoUtils.toByteArray(result, 2));
         response.responseValue = data = new byte[]{
                 (byte) 0xA4,
                 (byte) ParamsKeyEnum.KEY_REQUEST_UNLOCK_COMPLETE.getParamsKey(),
@@ -349,13 +349,13 @@ public class ParamsWriteTask extends OrderTask {
         };
     }
 
-    public void readLastLog(){
-        byte[] crcBytes = checkCrc(new byte[]{(byte) 1});
+    public void readLastLog(int dataPackage) {
+        byte[] crcBytes = checkCrc(new byte[]{(byte) dataPackage});
         response.responseValue = data = new byte[]{
                 (byte) 0xA1,
                 (byte) ParamsKeyEnum.KEY_READ_DEVICE_LOG.getParamsKey(),
                 (byte) 0x01,
-                (byte) 0x01,
+                (byte) dataPackage,
                 crcBytes[0],
                 crcBytes[1],
                 (byte) 0xE0

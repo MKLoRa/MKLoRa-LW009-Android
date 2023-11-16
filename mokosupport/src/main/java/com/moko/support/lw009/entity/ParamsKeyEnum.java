@@ -48,6 +48,7 @@ public enum ParamsKeyEnum implements Serializable {
     KEY_READ_SN_NUMBER(0x25),
     KEY_SET_LOG_ENABLE(0xB1),
     KEY_READ_DEVICE_LOG(0x20),
+    KEY_RESET(0x9A),
 
     ;
 
